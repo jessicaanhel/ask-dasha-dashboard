@@ -1,0 +1,42 @@
+name: Pre-commit
+
+on:
+  pull_request:
+    branches: [develop, prod]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pre-commit-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Run pre-commit (auto-fix)
+        run: pre-commit run --all-files || true
+
+      - name: Commit auto-fixes back to the PR branch
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: auto-fix via pre-commit [skip ci]"
+
+      - name: Run pre-commit (verify)
+        run: pre-commit run --all-files

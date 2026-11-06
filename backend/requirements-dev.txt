@@ -1,0 +1,10 @@
+-r requirements.txt
+
+# pre-commit tools
+black==26.5.1
+isort==9.0.0
+flake8==7.3.0
+pre-commit==4.6.2
+
+# tests
+pytest==9.2.0

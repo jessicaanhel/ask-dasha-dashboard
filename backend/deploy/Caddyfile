@@ -1,0 +1,31 @@
+# dash.1112studio.com: Ask Dasha (private)
+# Install on the server as /etc/caddy/Caddyfile (or import it from there). HTTPS is automatic.
+#
+# DNS: A record  dash.1112studio.com -> server IP
+# Login: generate the hash with `caddy hash-password` and put it in /etc/caddy/caddy.env as
+#   DASH_USER=...
+#   DASH_PASSWORD_HASH=...
+
+dash.1112studio.com {
+	# Everything is private, the API as well as the pages
+	basic_auth {
+		{$DASH_USER} {$DASH_PASSWORD_HASH}
+	}
+
+	# Flask API (gunicorn, see ask-dasha-backend.service)
+	handle /api/* {
+		reverse_proxy 127.0.0.1:5001 {
+			# Pass Dasha's streamed answers through immediately instead of buffering them
+			flush_interval -1
+		}
+	}
+
+	# React build (frontend/build), falling back to index.html for client-side routes
+	handle {
+		root * /home/ubuntu/ask-dasha/frontend/build
+		try_files {path} /index.html
+		file_server
+	}
+
+	encode gzip
+}

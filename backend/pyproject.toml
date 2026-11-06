@@ -1,0 +1,12 @@
+[tool.black]
+line-length = 100
+target-version = ["py313"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.pytest.ini_options]
+# Run from backend/, so imports work the same as in app.py (e.g. "from services import ...")
+pythonpath = ["."]
+testpaths = ["tests"]
